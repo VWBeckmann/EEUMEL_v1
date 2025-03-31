@@ -1,0 +1,12 @@
+requests
+PyPDF2
+sympy
+fuzzywuzzy
+langchain-community
+tiktoken
+faiss-cpu
+python-Levenshtein
+langchain-openai
+geopy
+spacy
+langgraph
