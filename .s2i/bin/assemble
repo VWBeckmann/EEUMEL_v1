@@ -3,6 +3,7 @@ set -e
 
 REQ_FILE="/tmp/src/requirements.txt"
 DOWNLOAD_DIR="/tmp/dependency_cache"
+SPACY_MODEL="en_core_web_sm"
 
 # Check if requirements.txt exists
 if [ ! -f "$REQ_FILE" ]; then
@@ -19,10 +20,15 @@ pip download --no-cache-dir -r "$REQ_FILE" -d "$DOWNLOAD_DIR"
 
 # Extract package names from downloaded files
 ALL_PACKAGES=()
+SPACY_INSTALLED=false
+
 for file in "$DOWNLOAD_DIR"/*; do
     package_name=$(basename "$file" | sed -E 's/-[0-9].*//')  # Extract package name
     if [[ ! " ${ALL_PACKAGES[@]} " =~ " ${package_name} " ]]; then
         ALL_PACKAGES+=("$package_name")
+    fi
+    if [[ "$package_name" == "spacy" ]]; then
+        SPACY_INSTALLED=true
     fi
 done
 
@@ -35,5 +41,11 @@ for package in "${ALL_PACKAGES[@]}"; do
     echo "Installing $package..."
     pip install --no-cache-dir --disable-pip-version-check "$package"
 done
+
+# If spacy was installed, download the language model
+if $SPACY_INSTALLED; then
+    echo "Spacy detected, downloading language model $SPACY_MODEL..."
+    python -m spacy download "$SPACY_MODEL"
+fi
 
 echo "All dependencies installed successfully."
