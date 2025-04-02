@@ -3,7 +3,8 @@ set -e
 
 # Check if requirements.txt exists
 if [ ! -f "/tmp/src/requirements.txt" ]; then
-  echo "Error: requirements.txt not found!"
+  echo "Error: requirements.txt not found in /tmp/src/"
+  ls -l /tmp/src/  # List files for debugging
   exit 1
 fi
 
