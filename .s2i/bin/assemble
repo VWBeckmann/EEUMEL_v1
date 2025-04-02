@@ -2,6 +2,7 @@
 set -e
 
 # Check if requirements.txt exists
+ls -l /tmp/src/
 if [ ! -f "/tmp/src/requirements.txt" ]; then
   echo "Error: requirements.txt not found in /tmp/src/"
   ls -l /tmp/src/  # List files for debugging
