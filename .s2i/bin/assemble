@@ -8,4 +8,15 @@ if [ ! -f "/tmp/src/requirements.txt" ]; then
 fi
 
 echo "Installing dependencies..."
-pip install -r /tmp/src/requirements.txt
+
+# Install dependencies in smaller batches to reduce memory usage
+TOTAL_DEPENDENCIES=$(wc -l < /tmp/src/requirements.txt)
+BATCH_SIZE=20
+
+for ((i=1; i<=TOTAL_DEPENDENCIES; i+=BATCH_SIZE)); do
+    echo "Installing batch starting from dependency $i..."
+    # Install a batch of dependencies
+    pip install --no-cache-dir --disable-pip-version-check -r <(sed -n "${i},$(($i + $BATCH_SIZE - 1))p" /tmp/src/requirements.txt)
+done
+
+echo "Dependencies installed successfully."
