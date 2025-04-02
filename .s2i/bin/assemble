@@ -12,7 +12,7 @@ pip install --no-cache-dir --upgrade pip setuptools
 
 # Install dependencies in smaller batches to reduce memory usage
 TOTAL_DEPENDENCIES=$(wc -l < /tmp/src/requirements.txt)
-BATCH_SIZE=10
+BATCH_SIZE=1
 
 # Iterate over the lines in the requirements.txt file in batches
 for ((i=1; i<=TOTAL_DEPENDENCIES; i+=BATCH_SIZE)); do
@@ -31,7 +31,7 @@ for ((i=1; i<=TOTAL_DEPENDENCIES; i+=BATCH_SIZE)); do
     # Install the current batch one by one, without dependencies (no recursion)
     while read -r package; do
         echo "Installing $package..."
-        pip install --no-cache-dir --disable-pip-version-check --no-deps "$package"
+        pip install --no-cache-dir --disable-pip-version-check -r "$package"
     done < /tmp/src/batch.txt
 done
 
