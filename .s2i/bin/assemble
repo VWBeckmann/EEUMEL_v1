@@ -28,11 +28,8 @@ for ((i=1; i<=TOTAL_DEPENDENCIES; i+=BATCH_SIZE)); do
     # Log the batch content for debugging
     cat /tmp/src/batch.txt
 
-    # Install the current batch one by one, without dependencies (no recursion)
-    while read -r package; do
-        echo "Installing $package..."
-        pip install --no-cache-dir --disable-pip-version-check -r "$package"
-    done < /tmp/src/batch.txt
+    # Install the current batch with pip, which automatically installs dependencies recursively
+    pip install --no-cache-dir --disable-pip-version-check -r /tmp/src/batch.txt
 done
 
 echo "Dependencies installed successfully."
