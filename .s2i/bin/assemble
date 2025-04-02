@@ -1,47 +1,39 @@
 #!/bin/bash
 set -e
 
+REQ_FILE="/tmp/src/requirements.txt"
+DOWNLOAD_DIR="/tmp/dependency_cache"
+
 # Check if requirements.txt exists
-if [ ! -f "/tmp/src/requirements.txt" ]; then
-  echo "Error: requirements.txt not found in /tmp/src/"
-  ls -l /tmp/src/  # List files for debugging
+if [ ! -f "$REQ_FILE" ]; then
+  echo "Error: requirements.txt not found!"
   exit 1
 fi
 
-# Create an empty list for all the packages to install
-install_list=()
+# Create a clean directory for downloading dependencies
+rm -rf "$DOWNLOAD_DIR"
+mkdir -p "$DOWNLOAD_DIR"
 
-# Read each package from the requirements.txt file
-while IFS= read -r package; do
-    # Skip empty lines or comments
-    if [[ -z "$package" || "$package" =~ ^# ]]; then
-        continue
+echo "Downloading dependencies for all packages in $REQ_FILE..."
+pip download --no-cache-dir -r "$REQ_FILE" -d "$DOWNLOAD_DIR"
+
+# Extract package names from downloaded files
+ALL_PACKAGES=()
+for file in "$DOWNLOAD_DIR"/*; do
+    package_name=$(basename "$file" | sed -E 's/-[0-9].*//')  # Extract package name
+    if [[ ! " ${ALL_PACKAGES[@]} " =~ " ${package_name} " ]]; then
+        ALL_PACKAGES+=("$package_name")
     fi
+done
 
-    echo "Getting dependencies for $package..."
-
-    # Get the list of recursively required packages using pipdeptree
-    # This will list all dependencies including transitive ones
-    deps=$(pipdeptree --freeze --warn silence | grep "$package==" | awk -F '==' '{print $1}' | sort | uniq)
-
-    # Add the package itself and its dependencies to the install list
-    for dep in $deps; do
-        if [[ ! " ${install_list[@]} " =~ " ${dep} " ]]; then
-            install_list+=("$dep")
-        fi
-    done
-done < "/tmp/src/requirements.txt"
-
-# Log the final list of packages to install
+# Log the final package list
 echo "Installing the following packages one by one:"
-for dep in "${install_list[@]}"; do
-    echo "$dep"
+printf "%s\n" "${ALL_PACKAGES[@]}"
+
+# Install each package individually
+for package in "${ALL_PACKAGES[@]}"; do
+    echo "Installing $package..."
+    pip install --no-cache-dir --disable-pip-version-check "$package"
 done
 
-# Install each package one by one
-for dep in "${install_list[@]}"; do
-    echo "Installing $dep..."
-    pip install --no-cache-dir --disable-pip-version-check "$dep"
-done
-
-echo "All packages installed successfully."
+echo "All dependencies installed successfully."
