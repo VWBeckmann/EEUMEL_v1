@@ -7,16 +7,18 @@ if [ ! -f "/tmp/src/requirements.txt" ]; then
   exit 1
 fi
 
-echo "Installing dependencies..."
+echo "Upgrading pip and setuptools..."
+pip install --no-cache-dir --upgrade pip setuptools
 
 # Install dependencies in smaller batches to reduce memory usage
 TOTAL_DEPENDENCIES=$(wc -l < /tmp/src/requirements.txt)
-BATCH_SIZE=20
+BATCH_SIZE=10
 
+# Upgrade each dependency in batches
 for ((i=1; i<=TOTAL_DEPENDENCIES; i+=BATCH_SIZE)); do
     echo "Installing batch starting from dependency $i..."
     # Install a batch of dependencies
-    pip install --no-cache-dir --disable-pip-version-check -r <(sed -n "${i},$(($i + $BATCH_SIZE - 1))p" /tmp/src/requirements.txt)
+    pip install --no-cache-dir --disable-pip-version-check --no-deps -r <(sed -n "${i},$(($i + $BATCH_SIZE - 1))p" /tmp/src/requirements.txt)
 done
 
 echo "Dependencies installed successfully."
