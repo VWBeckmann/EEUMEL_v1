@@ -1,10 +1,11 @@
 #!/bin/bash
-set -e  # Exit on error
+set -e
 
-echo "Upgrading pip..."
-pip install --upgrade pip
+echo "Checking for requirements.txt..."
+if [ ! -f "/tmp/src/requirements.txt" ]; then
+  echo "Error: requirements.txt not found!"
+  exit 1
+fi
 
-echo "Installing dependencies in batches..."
-while read package; do 
-    pip install --no-cache-dir "$package"
-done < requirements.txt
+echo "Installing dependencies..."
+pip install -r /tmp/src/requirements.txt
