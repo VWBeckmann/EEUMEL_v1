@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e  # Exit on error
+
+echo "Upgrading pip..."
+pip install --upgrade pip
+
+echo "Installing dependencies in batches..."
+while read package; do 
+    pip install --no-cache-dir "$package"
+done < requirements.txt
