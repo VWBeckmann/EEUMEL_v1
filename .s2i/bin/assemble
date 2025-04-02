@@ -14,11 +14,25 @@ pip install --no-cache-dir --upgrade pip setuptools
 TOTAL_DEPENDENCIES=$(wc -l < /tmp/src/requirements.txt)
 BATCH_SIZE=10
 
-# Upgrade each dependency in batches
+# Iterate over the lines in the requirements.txt file in batches
 for ((i=1; i<=TOTAL_DEPENDENCIES; i+=BATCH_SIZE)); do
-    echo "Installing batch starting from dependency $i..."
-    # Install a batch of dependencies
-    pip install --no-cache-dir --disable-pip-version-check --no-deps -r <(sed -n "${i},$(($i + $BATCH_SIZE - 1))p" /tmp/src/requirements.txt)
+    END_INDEX=$((i + BATCH_SIZE - 1))
+    if [ $END_INDEX -gt $TOTAL_DEPENDENCIES ]; then
+        END_INDEX=$TOTAL_DEPENDENCIES
+    fi
+    
+    echo "Installing batch from line $i to $END_INDEX..."
+    # Extract the batch
+    sed -n "${i},${END_INDEX}p" /tmp/src/requirements.txt > /tmp/src/batch.txt
+
+    # Log the batch content for debugging
+    cat /tmp/src/batch.txt
+
+    # Install the current batch one by one, without dependencies (no recursion)
+    while read -r package; do
+        echo "Installing $package..."
+        pip install --no-cache-dir --disable-pip-version-check --no-deps "$package"
+    done < /tmp/src/batch.txt
 done
 
 echo "Dependencies installed successfully."
