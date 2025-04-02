@@ -1,35 +1,46 @@
 #!/bin/bash
 set -e
 
-echo "Checking for requirements.txt..."
-if [ ! -f "/tmp/src/requirements.txt" ]; then
+# Check if requirements.txt exists
+if [ ! -f "requirements.txt" ]; then
   echo "Error: requirements.txt not found!"
   exit 1
 fi
 
-echo "Upgrading pip and setuptools..."
-pip install --no-cache-dir --upgrade pip setuptools
+# Create an empty list for all the packages to install
+install_list=()
 
-# Install dependencies in smaller batches to reduce memory usage
-TOTAL_DEPENDENCIES=$(wc -l < /tmp/src/requirements.txt)
-BATCH_SIZE=1
-
-# Iterate over the lines in the requirements.txt file in batches
-for ((i=1; i<=TOTAL_DEPENDENCIES; i+=BATCH_SIZE)); do
-    END_INDEX=$((i + BATCH_SIZE - 1))
-    if [ $END_INDEX -gt $TOTAL_DEPENDENCIES ]; then
-        END_INDEX=$TOTAL_DEPENDENCIES
+# Read each package from the requirements.txt file
+while IFS= read -r package; do
+    # Skip empty lines or comments
+    if [[ -z "$package" || "$package" =~ ^# ]]; then
+        continue
     fi
-    
-    echo "Installing batch from line $i to $END_INDEX..."
-    # Extract the batch
-    sed -n "${i},${END_INDEX}p" /tmp/src/requirements.txt > /tmp/src/batch.txt
 
-    # Log the batch content for debugging
-    cat /tmp/src/batch.txt
+    echo "Getting dependencies for $package..."
 
-    # Install the current batch with pip, which automatically installs dependencies recursively
-    pip install --no-cache-dir --disable-pip-version-check -r /tmp/src/batch.txt
+    # Get the list of recursively required packages using pipdeptree
+    # This will list all dependencies including transitive ones
+    deps=$(pipdeptree --freeze --warn silence | grep "$package==" | awk -F '==' '{print $1}' | sort | uniq)
+
+    # Add the package itself and its dependencies to the install list
+    for dep in $deps; do
+        if [[ ! " ${install_list[@]} " =~ " ${dep} " ]]; then
+            install_list+=("$dep")
+        fi
+    done
+done < "requirements.txt"
+
+# Log the final list of packages to install
+echo "Installing the following packages one by one:"
+for dep in "${install_list[@]}"; do
+    echo "$dep"
 done
 
-echo "Dependencies installed successfully."
+# Install each package one by one
+for dep in "${install_list[@]}"; do
+    echo "Installing $dep..."
+    pip install --no-cache-dir --disable-pip-version-check "$dep"
+done
+
+echo "All packages installed successfully."
