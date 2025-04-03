@@ -1,7 +1,7 @@
 import os
 import requests
 import spacy
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template_string
 from langchain.vectorstores import FAISS
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.chains import ConversationalRetrievalChain, LLMChain
@@ -121,6 +121,51 @@ multi_agent_system = MultiAgentSystem(weather_agent=weather_agent, car_manual_ag
 
 # Flask API
 app = Flask(__name__)
+
+HTML_PAGE = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Query Interface</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        input { width: 300px; padding: 10px; margin-bottom: 10px; }
+        button { padding: 10px; cursor: pointer; }
+        #response { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>Enter Your Query</h2>
+    <input type="text" id="queryInput" placeholder="Type your query here...">
+    <button onclick="sendQuery()">Submit</button>
+    <p id="response"></p>
+
+    <script>
+        function sendQuery() {
+            let query = document.getElementById("queryInput").value;
+            fetch("/query", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query: query })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("response").innerText = "Response: " + data.response;
+            })
+            .catch(error => {
+                document.getElementById("response").innerText = "Error: " + error;
+            });
+        }
+    </script>
+</body>
+</html>
+"""
+
+@app.route('/')
+def home():
+    return render_template_string(HTML_PAGE)
 
 @app.route('/query', methods=['POST'])
 def process_query():
