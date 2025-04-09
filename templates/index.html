@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Query Interface</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        input { width: 300px; padding: 10px; margin-bottom: 10px; }
+        button { padding: 10px; cursor: pointer; }
+        #response { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>Enter Your Query</h2>
+    <input type="text" id="queryInput" placeholder="Type your query here...">
+    <button onclick="sendQuery()">Submit</button>
+    <p id="response"></p>
+
+    <script>
+        function sendQuery() {
+            let query = document.getElementById("queryInput").value;
+            console.log(JSON.stringify({ query: query }));
+            fetch("/query", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query: query })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("response").innerText = "Response: " + data.response;
+            })
+            .catch(error => {
+                document.getElementById("response").innerText = "Error: " + error;
+            });
+        }
+    </script>
+</body>
+</html>
