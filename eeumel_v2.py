@@ -143,7 +143,6 @@ def index():
 @app.route("/query", methods=["POST"])
 def query():
     data = request.json
-    print(data)
     question = data.get("query", "")
     logger.debug("Received query: %s", question)
 
