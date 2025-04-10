@@ -31,6 +31,7 @@
                 document.getElementById("response").innerText = "Response: " + data.response;
             })
             .catch(error => {
+                console.log(error);
                 document.getElementById("response").innerText = "Error: " + error;
             });
         }
