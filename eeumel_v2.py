@@ -11,6 +11,8 @@ from langchain.prompts import PromptTemplate
 from langchain.llms import OpenAI
 from geopy.geocoders import Nominatim
 from dotenv import load_dotenv
+from openai import OpenAIError
+import openai
 
 # Configure logging
 logging.basicConfig(
@@ -50,12 +52,14 @@ else:
     logger.warning("FAISS index not found or embeddings not available. Some queries may not work.")
 
 # Set up ChatGPT model
-try:
-    chat_model = ChatOpenAI(temperature=0)
-    logger.info("Chat model initialized successfully.")
-except Exception as e:
-    logger.exception("Failed to initialize Chat model.")
-    chat_model = None
+if ping_openai():
+    try:
+        chat_model = ChatOpenAI(temperature=0)
+        logger.info("Chat model initialized successfully.")
+    except Exception as e:
+        logger.exception("Failed to initialize Chat model.")
+else:
+    logger.warning("Skipping ChatGPT initialization due to OpenAI ping failure.")
 
 # Load chat history
 chat_history = []
@@ -131,6 +135,15 @@ class WeatherAgent:
         except Exception as e:
             logger.exception("Error in geolocation lookup.")
         return None, None
+
+def ping_openai():
+    try:
+        openai.Model.list()
+        logger.info("Successfully connected to OpenAI API. Proxy is working.")
+        return True
+    except OpenAIError as e:
+        logger.exception("OpenAI API ping failed. Check proxy or API key.")
+        return False
 
 # Flask App Initialization
 app = Flask(__name__)
