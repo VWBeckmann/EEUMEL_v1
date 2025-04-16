@@ -11,3 +11,4 @@ langgraph
 PyPDF2
 sympy
 python-Levenshtein
+openai
