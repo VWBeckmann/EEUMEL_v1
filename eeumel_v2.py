@@ -8,7 +8,7 @@ from langchain_community.embeddings import OpenAIEmbeddings
 from langchain_community.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain, LLMChain
 from langchain.prompts import PromptTemplate
-from langchain.llms import OpenAI
+from langchain_community.llms import OpenAI
 from geopy.geocoders import Nominatim
 from dotenv import load_dotenv
 from openai import OpenAIError
