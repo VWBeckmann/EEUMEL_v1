@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+echo "Starting new build"
+
 REQ_FILE="/tmp/src/requirements.txt"
 DOWNLOAD_DIR="/tmp/dependency_cache"
 SPACY_MODEL="en_core_web_sm"
