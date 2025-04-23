@@ -4,7 +4,7 @@ import spacy
 import logging
 from flask import Flask, request, jsonify, render_template
 from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_community.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain, LLMChain
 from langchain.prompts import PromptTemplate
@@ -53,8 +53,19 @@ if embeddings and os.path.exists(index_path):
 else:
     logger.warning("FAISS index not found or embeddings not available. Some queries may not work.")
 
+def ping_openai():
+    try:
+        openai.Model.list()
+        logger.info("Successfully connected to OpenAI API. Proxy is working.")
+        return True
+    except OpenAIError as e:
+        logger.exception("OpenAI API ping failed. Check proxy or API key.")
+        return False
+
+pingOpenAI = ping_openai()
+
 # Set up ChatGPT model
-if ping_openai():
+if pingOpenAI:
     try:
         chat_model = ChatOpenAI(temperature=0)
         logger.info("Chat model initialized successfully.")
@@ -137,15 +148,6 @@ class WeatherAgent:
         except Exception as e:
             logger.exception("Error in geolocation lookup.")
         return None, None
-
-def ping_openai():
-    try:
-        openai.Model.list()
-        logger.info("Successfully connected to OpenAI API. Proxy is working.")
-        return True
-    except OpenAIError as e:
-        logger.exception("OpenAI API ping failed. Check proxy or API key.")
-        return False
 
 # Flask App Initialization
 app = Flask(__name__)
