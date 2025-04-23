@@ -14,6 +14,8 @@ from dotenv import load_dotenv
 from openai import OpenAIError
 import openai
 
+print("This is version 1.0")
+
 # Configure logging
 logging.basicConfig(
     level=logging.DEBUG,
