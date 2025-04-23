@@ -11,8 +11,8 @@ from langchain.prompts import PromptTemplate
 from langchain_community.llms import OpenAI
 from geopy.geocoders import Nominatim
 from dotenv import load_dotenv
-from openai import OpenAIError
 import openai
+from openai import OpenAIError
 
 print("This is version 1.0")
 
@@ -55,7 +55,7 @@ else:
 
 def ping_openai():
     try:
-        openai.Model.list()
+        models = openai.models.list()  # new syntax
         logger.info("Successfully connected to OpenAI API. Proxy is working.")
         return True
     except OpenAIError as e:
@@ -67,6 +67,7 @@ pingOpenAI = ping_openai()
 # Set up ChatGPT model
 if pingOpenAI:
     try:
+        from langchain.chat_models import ChatOpenAI  # Assuming this is what you're using
         chat_model = ChatOpenAI(temperature=0)
         logger.info("Chat model initialized successfully.")
     except Exception as e:
