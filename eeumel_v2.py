@@ -188,4 +188,6 @@ def query():
 
 if __name__ == "__main__":
     logger.info("Starting Flask app...")
-    app.run(host="0.0.0.0", debug=True)
+    PORT = int(os.environ.get("PORT", 8080))  # OpenShift uses dynamic ports
+    logger.info("Starting Flask app on Port " + PORT + "...")
+    app.run(host='0.0.0.0', port=PORT)
