@@ -51,7 +51,8 @@ except Exception as e:
     embeddings = None
 
 # Load FAISS index safely
-index_path = "faiss_index"
+base_dir = os.path.dirname(os.path.abspath(__file__))
+index_path = os.path.join(base_dir, "faiss_index")
 faiss_index = None
 
 print(f"Path '{index_path}' not found. Showing current directory tree for debugging:")
