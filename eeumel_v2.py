@@ -24,6 +24,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 load_dotenv()
 
+def print_directory_tree(start_path, prefix=""):
+    for root, dirs, files in os.walk(start_path):
+        level = root.replace(start_path, "").count(os.sep)
+        indent = " " * 4 * level
+        print(f"{indent}{os.path.basename(root)}/")
+        subindent = " " * 4 * (level + 1)
+        for f in files:
+            print(f"{subindent}{f}")
+
 # Load API keys securely
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
@@ -49,6 +58,9 @@ if embeddings and os.path.exists(index_path):
         faiss_index = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
         logger.info("FAISS index loaded successfully from %s.", index_path)
     except Exception as e:
+        print(f"Path '{index_path}' not found. Showing current directory tree for debugging:")
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        print_directory_tree(current_dir)
         logger.exception("Error loading FAISS index.")
 else:
     logger.warning("FAISS index not found or embeddings not available. Some queries may not work.")
