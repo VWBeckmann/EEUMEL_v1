@@ -15,9 +15,6 @@ import openai
 from openai import OpenAIError
 
 print("This is version 1.0")
-print(f"Path '{index_path}' not found. Showing current directory tree for debugging:")
-current_dir = os.path.dirname(os.path.abspath(__file__))
-print_directory_tree(current_dir)
 
 # Configure logging
 logging.basicConfig(
@@ -56,6 +53,11 @@ except Exception as e:
 # Load FAISS index safely
 index_path = "faiss_index"
 faiss_index = None
+
+print(f"Path '{index_path}' not found. Showing current directory tree for debugging:")
+current_dir = os.path.dirname(os.path.abspath(__file__))
+print_directory_tree(current_dir)
+
 if embeddings and os.path.exists(index_path):
     try:
         faiss_index = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
