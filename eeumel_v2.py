@@ -15,6 +15,9 @@ import openai
 from openai import OpenAIError
 
 print("This is version 1.0")
+print(f"Path '{index_path}' not found. Showing current directory tree for debugging:")
+current_dir = os.path.dirname(os.path.abspath(__file__))
+print_directory_tree(current_dir)
 
 # Configure logging
 logging.basicConfig(
