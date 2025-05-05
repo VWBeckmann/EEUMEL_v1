@@ -4,6 +4,7 @@ This is EEUMEL_v1. A cleaned up structure of EEUMEL
 
 # Structure
 
+´´´
 EEUMEL_v1/
 ├── app/
 │   ├── __init__.py              # Initializes the Flask app with logging and environment config
@@ -20,3 +21,4 @@ EEUMEL_v1/
 ├── requirements.txt             # Python package dependencies
 ├── run.py                       # Application entry point
 └── README.txt                   # This file
+´´´
