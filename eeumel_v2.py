@@ -52,6 +52,9 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 index_path = os.path.join(base_dir, "faiss_index")
 faiss_index = None
 
+logger.warning(base_dir)
+
+
 if embeddings and os.path.exists(index_path):
     try:
         faiss_index = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
@@ -63,7 +66,6 @@ if embeddings and os.path.exists(index_path):
         logger.exception("Error loading FAISS index.")
 else:
     logger.warning("FAISS index not found or embeddings not available. Some queries may not work.")
-    logger.warning(base_dir)
 
 # Set up ChatGPT model
 try:
