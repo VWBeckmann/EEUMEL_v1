@@ -63,6 +63,7 @@ if embeddings and os.path.exists(index_path):
         logger.exception("Error loading FAISS index.")
 else:
     logger.warning("FAISS index not found or embeddings not available. Some queries may not work.")
+    logger.warning(base_dir)
 
 # Set up ChatGPT model
 try:
